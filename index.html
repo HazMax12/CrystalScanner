@@ -36,7 +36,6 @@ body {
   cursor: default;
 }
 
-/* ── CANVAS BG ── */
 #bg-canvas {
   position: fixed;
   inset: 0;
@@ -44,7 +43,6 @@ body {
   pointer-events: none;
 }
 
-/* ── NOISE OVERLAY ── */
 body::before {
   content: '';
   position: fixed;
@@ -55,7 +53,6 @@ body::before {
   pointer-events: none;
 }
 
-/* ── LAYOUT ── */
 .container {
   position: relative;
   z-index: 2;
@@ -64,7 +61,6 @@ body::before {
   padding: 0 32px;
 }
 
-/* ── NAV ── */
 nav {
   position: fixed;
   top: 0; left: 0; right: 0;
@@ -92,20 +88,7 @@ nav .inner {
   letter-spacing: 0.12em;
   color: var(--text);
 }
-.gem-icon {
-  width: 26px; height: 26px;
-  flex-shrink: 0;
-}
-.nav-badge {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 10px;
-  color: var(--text-dim);
-  background: rgba(129, 140, 248, 0.08);
-  border: 1px solid var(--border);
-  border-radius: 4px;
-  padding: 2px 8px;
-  letter-spacing: 0.1em;
-}
+.gem-icon { width: 26px; height: 26px; flex-shrink: 0; }
 .nav-links {
   display: flex;
   align-items: center;
@@ -140,7 +123,6 @@ nav .inner {
   box-shadow: 0 0 20px rgba(167, 139, 250, 0.2);
 }
 
-/* ── HERO ── */
 .hero {
   min-height: 100vh;
   display: flex;
@@ -148,10 +130,7 @@ nav .inner {
   padding: 120px 0 80px;
   position: relative;
 }
-.hero-content {
-  text-align: center;
-  width: 100%;
-}
+.hero-content { text-align: center; width: 100%; }
 .hero-tag {
   display: inline-flex;
   align-items: center;
@@ -217,7 +196,6 @@ nav .inner {
   animation: fadeUp 0.8s ease 0.3s both;
 }
 
-/* ── BUTTONS ── */
 .btn-primary {
   display: inline-flex;
   align-items: center;
@@ -275,7 +253,6 @@ nav .inner {
   transform: translateY(-2px);
 }
 
-/* ── HERO VISUAL ── */
 .hero-visual {
   position: relative;
   margin: 72px auto 0;
@@ -327,7 +304,6 @@ nav .inner {
 .log-warn { color: #fbbf24; }
 .log-ok { color: #4ade80; }
 .log-detect { color: #f87171; font-weight: 500; }
-.log-client { color: var(--a2); font-weight: 500; }
 .progress-wrap {
   margin-top: 20px;
   padding-top: 18px;
@@ -364,6 +340,15 @@ nav .inner {
   background: rgba(255,255,255,0.6);
   filter: blur(4px);
 }
+.scan-beam {
+  position: absolute;
+  left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--a2), var(--hot), var(--a2), transparent);
+  animation: scanLine 2.5s ease-in-out infinite;
+  pointer-events: none;
+  opacity: 0.5;
+}
 
 @keyframes pbFill {
   0% { width: 0%; }
@@ -387,17 +372,7 @@ nav .inner {
   from { transform: translateY(-100%); }
   to { transform: translateY(200%); }
 }
-.scan-beam {
-  position: absolute;
-  left: 0; right: 0;
-  height: 2px;
-  background: linear-gradient(90deg, transparent, var(--a2), var(--hot), var(--a2), transparent);
-  animation: scanLine 2.5s ease-in-out infinite;
-  pointer-events: none;
-  opacity: 0.5;
-}
 
-/* ── SECTION ── */
 .section {
   padding: 120px 0;
   position: relative;
@@ -426,7 +401,6 @@ nav .inner {
   max-width: 520px;
 }
 
-/* ── FEATURES GRID ── */
 .features-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -474,13 +448,8 @@ nav .inner {
   color: var(--text);
   margin-bottom: 12px;
 }
-.feature-desc {
-  font-size: 14px;
-  color: var(--text-dim);
-  line-height: 1.7;
-}
+.feature-desc { font-size: 14px; color: var(--text-dim); line-height: 1.7; }
 
-/* ── HOW IT WORKS ── */
 .how-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -488,11 +457,7 @@ nav .inner {
   align-items: center;
   margin-top: 72px;
 }
-.steps {
-  display: flex;
-  flex-direction: column;
-  gap: 0;
-}
+.steps { display: flex; flex-direction: column; gap: 0; }
 .step {
   display: flex;
   gap: 24px;
@@ -531,11 +496,7 @@ nav .inner {
   color: var(--text);
   margin-bottom: 6px;
 }
-.step-info p {
-  font-size: 14px;
-  color: var(--text-dim);
-  line-height: 1.65;
-}
+.step-info p { font-size: 14px; color: var(--text-dim); line-height: 1.65; }
 .code-box {
   background: rgba(9, 6, 25, 0.9);
   border: 1px solid var(--border-bright);
@@ -556,7 +517,6 @@ nav .inner {
   color: var(--text-dim);
   opacity: 0.5;
 }
-.code-box .scan-beam { top: 0; }
 .c-dim { color: var(--text-dim); }
 .c-a1 { color: var(--a1); }
 .c-a2 { color: var(--a2); }
@@ -564,9 +524,7 @@ nav .inner {
 .c-hot { color: var(--hot); }
 .c-green { color: #4ade80; }
 .c-red { color: #f87171; }
-.c-yellow { color: #fbbf24; }
 
-/* ── CLIENTS SECTION ── */
 .clients-section { text-align: center; }
 .clients-grid {
   display: flex;
@@ -587,7 +545,7 @@ nav .inner {
   transition: all 0.25s;
   cursor: default;
 }
-.client-chip:hover { opacity: 1; transform: translateY(-2px); box-shadow: 0 4px 20px currentColor; }
+.client-chip:hover { opacity: 1; transform: translateY(-2px); }
 
 /* ── DOWNLOAD ── */
 .download-box {
@@ -643,7 +601,25 @@ nav .inner {
   font-weight: 500;
 }
 
-/* ── FOOTER ── */
+/* Download button pulse ring */
+.btn-dl-wrap {
+  display: inline-block;
+  position: relative;
+}
+.btn-dl-wrap::after {
+  content: '';
+  position: absolute;
+  inset: -6px;
+  border-radius: 14px;
+  border: 1px solid rgba(167,139,250,0.4);
+  animation: ringPulse 2s ease infinite;
+  pointer-events: none;
+}
+@keyframes ringPulse {
+  0%, 100% { opacity: 0.5; transform: scale(1); }
+  50% { opacity: 0; transform: scale(1.06); }
+}
+
 footer {
   position: relative;
   z-index: 2;
@@ -673,15 +649,12 @@ footer .inner {
 }
 .footer-credit span { color: var(--a2); }
 
-/* ── GRADIENT RULE ── */
 .grad-rule {
   height: 1px;
   background: linear-gradient(90deg, transparent, var(--a3), var(--a2), var(--hot), var(--a2), transparent);
   opacity: 0.4;
-  margin: 0;
 }
 
-/* ── RESPONSIVE ── */
 @media (max-width: 768px) {
   .features-grid { grid-template-columns: 1fr; }
   .how-grid { grid-template-columns: 1fr; }
@@ -690,16 +663,12 @@ footer .inner {
   .hero-cta { flex-direction: column; align-items: center; }
 }
 
-/* ── SCROLL ANIMATIONS ── */
 .reveal {
   opacity: 0;
   transform: translateY(24px);
   transition: opacity 0.7s ease, transform 0.7s ease;
 }
-.reveal.visible {
-  opacity: 1;
-  transform: translateY(0);
-}
+.reveal.visible { opacity: 1; transform: translateY(0); }
 .reveal-delay-1 { transition-delay: 0.1s; }
 .reveal-delay-2 { transition-delay: 0.2s; }
 .reveal-delay-3 { transition-delay: 0.3s; }
@@ -734,7 +703,7 @@ footer .inner {
       <li><a href="#features">Features</a></li>
       <li><a href="#how">How It Works</a></li>
       <li><a href="#detection">Detection</a></li>
-      <li><a href="#download" class="btn-nav">Download</a></li>
+      <li><a href="CrystalScanner.exe" download="CrystalScanner.exe" class="btn-nav">Download</a></li>
     </ul>
   </div>
 </nav>
@@ -757,7 +726,7 @@ footer .inner {
         before they corrupt your gameplay.
       </p>
       <div class="hero-cta">
-        <a href="#download" class="btn-primary">
+        <a href="CrystalScanner.exe" download="CrystalScanner.exe" class="btn-primary">
           ◆ &nbsp;Download Free
         </a>
         <a href="#how" class="btn-secondary">
@@ -779,7 +748,6 @@ footer .inner {
         </div>
         <div class="window-body" style="position:relative; overflow:hidden;">
           <div class="scan-beam"></div>
-
           <div class="log-line" style="animation-delay:0.5s">
             <span class="log-ts">[14:23:01]</span>
             <span class="log-info">Initialising memory scan engine…</span>
@@ -808,7 +776,6 @@ footer .inner {
             <span class="log-ts">[14:23:11]</span>
             <span class="log-detect">⚠  2 cheat client(s) detected!</span>
           </div>
-
           <div class="progress-wrap">
             <div class="pb-label">
               <span>SCANNING MEMORY</span>
@@ -821,7 +788,6 @@ footer .inner {
         </div>
       </div>
     </div>
-
   </div>
 </section>
 
@@ -835,7 +801,6 @@ footer .inner {
       <h2 class="section-title">Detection at the<br><span style="color:var(--a2)">Memory Level</span></h2>
       <p class="section-sub">Crystal Scanner reads directly from process memory — where cheat clients can't hide. No guesswork, no false positives.</p>
     </div>
-
     <div class="features-grid">
       <div class="feature-card reveal reveal-delay-1">
         <div class="feature-icon">🔬</div>
@@ -881,7 +846,6 @@ footer .inner {
         <div class="section-tag">// How It Works</div>
         <h2 class="section-title">Under the Hood</h2>
         <p class="section-sub">A precise, multi-stage pipeline from process discovery to detection result.</p>
-
         <div class="steps" style="margin-top:40px">
           <div class="step">
             <div class="step-num">1</div>
@@ -913,7 +877,6 @@ footer .inner {
           </div>
         </div>
       </div>
-
       <div class="reveal reveal-delay-2">
         <div class="code-box" style="position:relative; overflow:hidden;">
           <div class="scan-beam"></div>
@@ -945,9 +908,8 @@ footer .inner {
     <div class="reveal">
       <div class="section-tag">// Detection Database</div>
       <h2 class="section-title">Clients We Detect</h2>
-      <p class="section-sub" style="margin: 0 auto;">From widespread open-source hack clients to elusive closet cheats — our signature library covers the full spectrum of Minecraft cheating software.</p>
+      <p class="section-sub" style="margin:0 auto;">From widespread open-source hack clients to elusive closet cheats — our signature library covers the full spectrum of Minecraft cheating software.</p>
     </div>
-
     <div class="clients-grid reveal" style="margin-top:52px;">
       <span class="client-chip" style="color:#60a5fa; border-color:rgba(96,165,250,0.3); background:rgba(96,165,250,0.05)">LiquidBounce</span>
       <span class="client-chip" style="color:#38bdf8; border-color:rgba(56,189,248,0.3); background:rgba(56,189,248,0.05)">LiquidBounce Next</span>
@@ -983,9 +945,13 @@ footer .inner {
       <div class="section-tag" style="margin-bottom:20px">// Free Download</div>
       <div class="dl-title">Start Scanning Now</div>
       <p class="dl-sub">Crystal Scanner is completely free. Windows only.<br>Run as Administrator for full memory access.</p>
-      <a href="#" class="btn-primary" style="font-size:13px; padding:18px 40px; display:inline-flex;">
-        ◆ &nbsp;Download Crystal Scanner v2.0
-      </a>
+
+      <div class="btn-dl-wrap">
+        <a href="CrystalScanner.exe" download="CrystalScanner.exe" class="btn-primary" style="font-size:13px; padding:18px 40px;">
+          ◆ &nbsp;Download Crystal Scanner v2.0
+        </a>
+      </div>
+
       <div class="dl-meta">
         <div class="dl-meta-item">
           <strong>v2.0</strong>
@@ -1052,8 +1018,6 @@ function spawnStar(init = false) {
 
 function drawFrame() {
   ctx.clearRect(0, 0, W, H);
-
-  // Background gradient
   const grd = ctx.createLinearGradient(0, 0, 0, H);
   grd.addColorStop(0, '#04020f');
   grd.addColorStop(0.5, '#070520');
@@ -1062,8 +1026,6 @@ function drawFrame() {
   ctx.fillRect(0, 0, W, H);
 
   const t = tick * 0.01;
-
-  // Orbs
   ORBS.forEach(o => {
     const cx = W * (o.fx + o.sx * Math.sin(t * o.spd));
     const cy = H * (o.fy + o.sy * Math.cos(t * o.spd * 0.7));
@@ -1077,24 +1039,17 @@ function drawFrame() {
     ctx.fill();
   });
 
-  // Stars
   for (let i = stars.length - 1; i >= 0; i--) {
     const s = stars[i];
     const pulse = 0.5 + 0.5 * Math.sin(s.life);
-    const r2 = s.r * pulse;
     ctx.fillStyle = s.col;
     ctx.globalAlpha = pulse * 0.8;
     ctx.beginPath();
-    ctx.arc(s.x, s.y, r2, 0, Math.PI * 2);
+    ctx.arc(s.x, s.y, s.r * pulse, 0, Math.PI * 2);
     ctx.fill();
     ctx.globalAlpha = 1;
-
-    s.x    += s.vx;
-    s.y    += s.vy;
-    s.life += s.ls;
-    if (s.y < -8 || s.x < -12 || s.x > W + 12) {
-      stars[i] = spawnStar();
-    }
+    s.x += s.vx; s.y += s.vy; s.life += s.ls;
+    if (s.y < -8 || s.x < -12 || s.x > W + 12) stars[i] = spawnStar();
   }
 
   tick++;
@@ -1108,11 +1063,7 @@ drawFrame();
 // ── SCROLL REVEAL ──
 const reveals = document.querySelectorAll('.reveal');
 const obs = new IntersectionObserver((entries) => {
-  entries.forEach(e => {
-    if (e.isIntersecting) {
-      e.target.classList.add('visible');
-    }
-  });
+  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
 }, { threshold: 0.12 });
 reveals.forEach(el => obs.observe(el));
 </script>
