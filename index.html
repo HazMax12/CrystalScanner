@@ -4,706 +4,764 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Crystal Scanner — Minecraft Cheat Detection</title>
-<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Syne:wght@400;600;700&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@300;400;500;600;700;800&family=DM+Sans:wght@300;400;500;600&family=IBM+Plex+Mono:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
 *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
 :root {
-  --bg: #04020f;
-  --surface: #0a0720;
-  --surface2: #0f0b2e;
-  --border: rgba(129, 140, 248, 0.15);
-  --border-bright: rgba(167, 139, 250, 0.35);
-  --a1: #818cf8;
-  --a2: #a78bfa;
-  --a3: #60a5fa;
-  --hot: #e879f9;
-  --text: #ede9fe;
-  --text-mid: #a5b4fc;
-  --text-dim: #4a4580;
-  --glow: rgba(167, 139, 250, 0.4);
-  --glow-hot: rgba(232, 121, 249, 0.35);
+  --bg:       #09090b;
+  --bg1:      #0f0f12;
+  --bg2:      #141418;
+  --border:   rgba(255,255,255,0.06);
+  --border2:  rgba(255,255,255,0.10);
+  --cyan:     #22d3ee;
+  --cyan-dim: rgba(34,211,238,0.08);
+  --cyan-glow:rgba(34,211,238,0.18);
+  --green:    #10b981;
+  --red:      #f43f5e;
+  --text:     #f4f4f5;
+  --text-2:   #a1a1aa;
+  --text-3:   #52525b;
 }
 
 html { scroll-behavior: smooth; }
 
 body {
-  font-family: 'Syne', sans-serif;
+  font-family: 'DM Sans', system-ui, sans-serif;
   background: var(--bg);
   color: var(--text);
   min-height: 100vh;
   overflow-x: hidden;
-  cursor: default;
+  -webkit-font-smoothing: antialiased;
 }
 
-#bg-canvas {
-  position: fixed;
-  inset: 0;
-  z-index: 0;
-  pointer-events: none;
-}
-
+/* ── GRID BACKGROUND ── */
 body::before {
   content: '';
   position: fixed;
   inset: 0;
-  z-index: 1;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
-  opacity: 0.4;
+  z-index: 0;
+  background-image:
+    linear-gradient(rgba(34,211,238,0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(34,211,238,0.025) 1px, transparent 1px);
+  background-size: 64px 64px;
   pointer-events: none;
 }
 
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  background: radial-gradient(ellipse 80% 60% at 50% -10%, rgba(34,211,238,0.06), transparent);
+  pointer-events: none;
+}
+
+/* ── LAYOUT ── */
 .container {
   position: relative;
   z-index: 2;
-  max-width: 1100px;
+  max-width: 1080px;
   margin: 0 auto;
-  padding: 0 32px;
+  padding: 0 40px;
 }
 
+/* ── NAV ── */
 nav {
   position: fixed;
   top: 0; left: 0; right: 0;
   z-index: 100;
-  padding: 18px 0;
-  background: rgba(4, 2, 15, 0.7);
-  backdrop-filter: blur(24px);
+  height: 60px;
+  display: flex;
+  align-items: center;
+  background: rgba(9,9,11,0.85);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
   border-bottom: 1px solid var(--border);
 }
-nav .inner {
+.nav-inner {
+  width: 100%;
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 0 40px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  max-width: 1100px;
-  margin: 0 auto;
-  padding: 0 32px;
 }
 .nav-logo {
   display: flex;
   align-items: center;
   gap: 10px;
-  font-family: 'Orbitron', monospace;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 17px;
   font-weight: 700;
-  font-size: 14px;
   letter-spacing: 0.12em;
+  text-transform: uppercase;
   color: var(--text);
+  text-decoration: none;
 }
-.gem-icon { width: 26px; height: 26px; flex-shrink: 0; }
+.logo-gem {
+  width: 22px; height: 22px;
+  flex-shrink: 0;
+}
 .nav-links {
   display: flex;
   align-items: center;
-  gap: 32px;
+  gap: 36px;
   list-style: none;
 }
 .nav-links a {
   font-size: 13px;
-  font-weight: 600;
-  color: var(--text-dim);
+  font-weight: 500;
+  color: var(--text-3);
   text-decoration: none;
-  letter-spacing: 0.05em;
-  transition: color 0.25s;
+  letter-spacing: 0.02em;
+  transition: color 0.2s;
 }
-.nav-links a:hover { color: var(--text-mid); }
-.btn-nav {
-  font-family: 'Orbitron', monospace;
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  color: var(--a2) !important;
-  background: rgba(167, 139, 250, 0.08);
-  border: 1px solid rgba(167, 139, 250, 0.3);
+.nav-links a:hover { color: var(--text-2); }
+.nav-cta {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px !important;
+  font-weight: 500;
+  letter-spacing: 0.06em !important;
+  color: var(--cyan) !important;
+  background: var(--cyan-dim);
+  border: 1px solid rgba(34,211,238,0.2);
   border-radius: 6px;
-  padding: 8px 18px;
-  transition: all 0.25s !important;
+  padding: 7px 16px;
+  transition: all 0.2s !important;
 }
-.btn-nav:hover {
-  background: rgba(167, 139, 250, 0.16) !important;
-  border-color: rgba(167, 139, 250, 0.6) !important;
+.nav-cta:hover {
+  background: rgba(34,211,238,0.14) !important;
+  border-color: rgba(34,211,238,0.4) !important;
   color: var(--text) !important;
-  box-shadow: 0 0 20px rgba(167, 139, 250, 0.2);
 }
 
+/* ── HERO ── */
 .hero {
+  position: relative;
+  z-index: 2;
   min-height: 100vh;
   display: flex;
   align-items: center;
   padding: 120px 0 80px;
-  position: relative;
 }
-.hero-content { text-align: center; width: 100%; }
-.hero-tag {
+.hero-inner {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 80px;
+  align-items: center;
+}
+.hero-left {}
+.hero-badge {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 11px;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
   font-weight: 500;
-  color: var(--a2);
-  background: rgba(167, 139, 250, 0.07);
-  border: 1px solid rgba(167, 139, 250, 0.25);
-  border-radius: 100px;
-  padding: 6px 16px;
-  letter-spacing: 0.08em;
-  margin-bottom: 40px;
-  animation: fadeUp 0.8s ease both;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--cyan);
+  background: var(--cyan-dim);
+  border: 1px solid rgba(34,211,238,0.15);
+  border-radius: 4px;
+  padding: 5px 12px;
+  margin-bottom: 28px;
+  animation: fadeUp 0.7s ease both;
 }
-.hero-tag .dot {
-  width: 6px; height: 6px;
-  background: var(--a2);
+.badge-dot {
+  width: 5px; height: 5px;
+  background: var(--cyan);
   border-radius: 50%;
-  box-shadow: 0 0 8px var(--a2);
-  animation: pulse 2s ease infinite;
+  box-shadow: 0 0 6px var(--cyan);
+  animation: blink 2s ease infinite;
 }
+@keyframes blink {
+  0%,100%{opacity:1} 50%{opacity:0.3}
+}
+
 .hero-title {
-  font-family: 'Orbitron', monospace;
-  font-size: clamp(42px, 7vw, 88px);
-  font-weight: 900;
-  line-height: 1;
-  letter-spacing: -0.02em;
-  margin-bottom: 12px;
-  animation: fadeUp 0.8s ease 0.1s both;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: clamp(52px, 6vw, 80px);
+  font-weight: 800;
+  line-height: 0.95;
+  letter-spacing: -0.01em;
+  text-transform: uppercase;
+  margin-bottom: 24px;
+  animation: fadeUp 0.7s ease 0.1s both;
 }
-.hero-title span {
+.hero-title .accent {
+  color: var(--cyan);
   display: block;
-  background: linear-gradient(135deg, var(--a3) 0%, var(--a1) 35%, var(--a2) 65%, var(--hot) 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
 }
-.hero-title .line2 {
-  font-size: clamp(28px, 4.5vw, 58px);
-  color: var(--text);
-  -webkit-text-fill-color: unset;
-  background: none;
-  font-weight: 400;
-  letter-spacing: 0.04em;
+.hero-title .dim {
+  color: var(--text-3);
+  font-weight: 300;
+  font-size: 0.55em;
+  letter-spacing: 0.1em;
+  display: block;
   margin-top: 6px;
 }
 .hero-desc {
-  font-size: 17px;
-  color: var(--text-dim);
-  max-width: 540px;
-  margin: 28px auto 0;
-  line-height: 1.7;
+  font-size: 15px;
   font-weight: 400;
-  animation: fadeUp 0.8s ease 0.2s both;
+  color: var(--text-2);
+  line-height: 1.75;
+  max-width: 380px;
+  margin-bottom: 40px;
+  animation: fadeUp 0.7s ease 0.2s both;
 }
-.hero-cta {
+.hero-actions {
   display: flex;
-  justify-content: center;
-  gap: 16px;
-  margin-top: 52px;
-  animation: fadeUp 0.8s ease 0.3s both;
+  align-items: center;
+  gap: 14px;
+  animation: fadeUp 0.7s ease 0.3s both;
 }
-
 .btn-primary {
   display: inline-flex;
   align-items: center;
-  gap: 10px;
-  font-family: 'Orbitron', monospace;
+  gap: 8px;
+  font-family: 'IBM Plex Mono', monospace;
   font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  color: var(--bg);
-  background: linear-gradient(135deg, var(--a3), var(--a2), var(--hot));
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  color: #000;
+  background: var(--cyan);
   border: none;
-  border-radius: 8px;
-  padding: 16px 32px;
+  border-radius: 6px;
+  padding: 13px 24px;
   cursor: pointer;
   text-decoration: none;
-  transition: all 0.3s;
-  position: relative;
-  overflow: hidden;
-}
-.btn-primary::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(135deg, rgba(255,255,255,0.2), transparent);
-  opacity: 0;
-  transition: opacity 0.3s;
+  transition: all 0.2s;
 }
 .btn-primary:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 40px rgba(167, 139, 250, 0.5), 0 0 60px rgba(232, 121, 249, 0.2);
+  background: #67e8f9;
+  transform: translateY(-1px);
+  box-shadow: 0 8px 30px rgba(34,211,238,0.3);
 }
-.btn-primary:hover::before { opacity: 1; }
-.btn-secondary {
+.btn-ghost {
   display: inline-flex;
   align-items: center;
-  gap: 10px;
-  font-family: 'Orbitron', monospace;
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  color: var(--text-mid);
-  background: transparent;
-  border: 1px solid var(--border-bright);
-  border-radius: 8px;
-  padding: 16px 32px;
-  cursor: pointer;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-2);
   text-decoration: none;
-  transition: all 0.3s;
+  padding: 13px 20px;
+  border: 1px solid var(--border2);
+  border-radius: 6px;
+  transition: all 0.2s;
 }
-.btn-secondary:hover {
-  background: rgba(167, 139, 250, 0.08);
-  border-color: var(--a2);
+.btn-ghost:hover {
   color: var(--text);
-  box-shadow: 0 0 30px rgba(167, 139, 250, 0.15);
-  transform: translateY(-2px);
+  border-color: rgba(255,255,255,0.2);
+  background: rgba(255,255,255,0.03);
 }
 
-.hero-visual {
-  position: relative;
-  margin: 72px auto 0;
-  max-width: 760px;
-  animation: fadeUp 0.8s ease 0.4s both;
-}
-.scan-window {
-  background: rgba(9, 6, 25, 0.9);
-  border: 1px solid var(--border-bright);
-  border-radius: 12px;
+/* ── TERMINAL ── */
+.hero-right { animation: fadeUp 0.7s ease 0.35s both; }
+.terminal {
+  background: var(--bg1);
+  border: 1px solid var(--border2);
+  border-radius: 10px;
   overflow: hidden;
-  box-shadow: 0 40px 80px rgba(0,0,0,0.5), 0 0 100px rgba(129, 140, 248, 0.08), inset 0 1px 0 rgba(167,139,250,0.2);
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,0.04),
+    0 40px 80px rgba(0,0,0,0.5),
+    0 0 60px rgba(34,211,238,0.04);
 }
-.window-bar {
+.terminal-bar {
+  height: 40px;
   display: flex;
   align-items: center;
-  padding: 14px 20px;
-  background: rgba(15, 11, 46, 0.8);
+  padding: 0 16px;
+  background: var(--bg2);
   border-bottom: 1px solid var(--border);
-  gap: 12px;
+  gap: 8px;
 }
-.window-dots { display: flex; gap: 6px; }
-.dot-r { width: 10px; height: 10px; border-radius: 50%; background: #f87171; opacity: 0.7; }
-.dot-y { width: 10px; height: 10px; border-radius: 50%; background: #fbbf24; opacity: 0.7; }
-.dot-g { width: 10px; height: 10px; border-radius: 50%; background: #4ade80; opacity: 0.7; }
-.window-title {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 11px;
-  color: var(--text-dim);
-  letter-spacing: 0.05em;
+.tbar-dots { display: flex; gap: 6px; }
+.td { width: 9px; height: 9px; border-radius: 50%; }
+.td-r { background: rgba(248,113,113,0.5); }
+.td-y { background: rgba(251,191,36,0.5); }
+.td-g { background: rgba(52,211,153,0.5); }
+.tbar-label {
   flex: 1;
   text-align: center;
-}
-.window-body {
-  padding: 28px 32px;
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 12px;
-  line-height: 1.8;
-}
-.log-line {
-  display: flex;
-  gap: 12px;
-  align-items: flex-start;
-  opacity: 0;
-  animation: logReveal 0.4s ease forwards;
-}
-.log-ts { color: var(--text-dim); flex-shrink: 0; }
-.log-info { color: var(--a1); }
-.log-warn { color: #fbbf24; }
-.log-ok { color: #4ade80; }
-.log-detect { color: #f87171; font-weight: 500; }
-.progress-wrap {
-  margin-top: 20px;
-  padding-top: 18px;
-  border-top: 1px solid var(--border);
-}
-.pb-label {
-  display: flex;
-  justify-content: space-between;
+  font-family: 'IBM Plex Mono', monospace;
   font-size: 10px;
-  color: var(--text-dim);
-  margin-bottom: 8px;
-  letter-spacing: 0.06em;
-}
-.pb-track {
-  height: 4px;
-  background: rgba(129, 140, 248, 0.1);
-  border-radius: 4px;
-  overflow: hidden;
-  position: relative;
-}
-.pb-fill {
-  height: 100%;
-  background: linear-gradient(90deg, var(--a3), var(--a2), var(--hot));
-  border-radius: 4px;
-  width: 0%;
-  animation: pbFill 3.5s ease 1.5s forwards;
-  position: relative;
-}
-.pb-fill::after {
-  content: '';
-  position: absolute;
-  right: 0; top: 0; bottom: 0;
-  width: 20px;
-  background: rgba(255,255,255,0.6);
-  filter: blur(4px);
-}
-.scan-beam {
-  position: absolute;
-  left: 0; right: 0;
-  height: 2px;
-  background: linear-gradient(90deg, transparent, var(--a2), var(--hot), var(--a2), transparent);
-  animation: scanLine 2.5s ease-in-out infinite;
-  pointer-events: none;
-  opacity: 0.5;
-}
-
-@keyframes pbFill {
-  0% { width: 0%; }
-  60% { width: 78%; }
-  80% { width: 92%; }
-  100% { width: 100%; }
-}
-@keyframes logReveal {
-  from { opacity: 0; transform: translateX(-4px); }
-  to { opacity: 1; transform: translateX(0); }
-}
-@keyframes fadeUp {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-@keyframes pulse {
-  0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.5; transform: scale(0.8); }
-}
-@keyframes scanLine {
-  from { transform: translateY(-100%); }
-  to { transform: translateY(200%); }
-}
-
-.section {
-  padding: 120px 0;
-  position: relative;
-  z-index: 2;
-}
-.section-tag {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 10px;
-  letter-spacing: 0.15em;
-  color: var(--a2);
-  text-transform: uppercase;
-  margin-bottom: 16px;
-}
-.section-title {
-  font-family: 'Orbitron', monospace;
-  font-size: clamp(28px, 4vw, 44px);
-  font-weight: 700;
-  line-height: 1.1;
-  margin-bottom: 18px;
-  letter-spacing: -0.01em;
-}
-.section-sub {
-  font-size: 16px;
-  color: var(--text-dim);
-  line-height: 1.7;
-  max-width: 520px;
-}
-
-.features-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 1px;
-  margin-top: 72px;
-  background: var(--border);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  overflow: hidden;
-}
-.feature-card {
-  background: var(--surface);
-  padding: 40px 36px;
-  position: relative;
-  overflow: hidden;
-  transition: background 0.3s;
-}
-.feature-card::before {
-  content: '';
-  position: absolute;
-  top: 0; left: 0; right: 0;
-  height: 2px;
-  background: linear-gradient(90deg, transparent, var(--a2), transparent);
-  opacity: 0;
-  transition: opacity 0.3s;
-}
-.feature-card:hover { background: var(--surface2); }
-.feature-card:hover::before { opacity: 1; }
-.feature-icon {
-  width: 44px; height: 44px;
-  background: linear-gradient(135deg, rgba(167,139,250,0.1), rgba(232,121,249,0.05));
-  border: 1px solid rgba(167,139,250,0.2);
-  border-radius: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 24px;
-  font-size: 20px;
-}
-.feature-name {
-  font-family: 'Orbitron', monospace;
-  font-size: 13px;
-  font-weight: 700;
-  letter-spacing: 0.05em;
-  color: var(--text);
-  margin-bottom: 12px;
-}
-.feature-desc { font-size: 14px; color: var(--text-dim); line-height: 1.7; }
-
-.how-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 64px;
-  align-items: center;
-  margin-top: 72px;
-}
-.steps { display: flex; flex-direction: column; gap: 0; }
-.step {
-  display: flex;
-  gap: 24px;
-  align-items: flex-start;
-  padding: 24px 0;
-  position: relative;
-}
-.step:not(:last-child)::after {
-  content: '';
-  position: absolute;
-  left: 17px;
-  top: 56px;
-  bottom: -8px;
-  width: 1px;
-  background: linear-gradient(to bottom, var(--border-bright), transparent);
-}
-.step-num {
-  width: 36px; height: 36px;
-  background: linear-gradient(135deg, var(--a2), var(--hot));
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: 'Orbitron', monospace;
-  font-size: 12px;
-  font-weight: 700;
-  color: var(--bg);
-  flex-shrink: 0;
-  box-shadow: 0 0 20px rgba(167,139,250,0.3);
-}
-.step-info h3 {
-  font-family: 'Orbitron', monospace;
-  font-size: 14px;
-  font-weight: 700;
+  font-weight: 400;
+  color: var(--text-3);
   letter-spacing: 0.04em;
-  color: var(--text);
-  margin-bottom: 6px;
 }
-.step-info p { font-size: 14px; color: var(--text-dim); line-height: 1.65; }
-.code-box {
-  background: rgba(9, 6, 25, 0.9);
-  border: 1px solid var(--border-bright);
-  border-radius: 10px;
-  padding: 28px;
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 12px;
+.terminal-body {
+  padding: 24px;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11.5px;
   line-height: 2;
   position: relative;
   overflow: hidden;
 }
-.code-box::before {
-  content: '// SCAN OUTPUT';
+.t-scan-beam {
   position: absolute;
-  top: 12px; right: 16px;
-  font-size: 9px;
-  letter-spacing: 0.12em;
-  color: var(--text-dim);
-  opacity: 0.5;
+  left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(34,211,238,0.4), transparent);
+  animation: scanDown 2.8s ease-in-out infinite;
+  opacity: 0.6;
 }
-.c-dim { color: var(--text-dim); }
-.c-a1 { color: var(--a1); }
-.c-a2 { color: var(--a2); }
-.c-a3 { color: var(--a3); }
-.c-hot { color: var(--hot); }
-.c-green { color: #4ade80; }
-.c-red { color: #f87171; }
-
-.clients-section { text-align: center; }
-.clients-grid {
+@keyframes scanDown {
+  from { transform: translateY(-100%); }
+  to   { transform: translateY(1000%); }
+}
+.tl { display: flex; gap: 14px; opacity: 0; animation: reveal 0.3s ease forwards; }
+.tl-ts { color: var(--text-3); flex-shrink: 0; }
+.tl-i  { color: #60a5fa; }
+.tl-w  { color: #f59e0b; }
+.tl-ok { color: var(--green); }
+.tl-e  { color: var(--red); font-weight: 500; }
+.t-divider {
+  height: 1px;
+  background: var(--border);
+  margin: 16px 0;
+}
+.t-progress { }
+.t-progress-labels {
   display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  justify-content: center;
-  margin-top: 52px;
+  justify-content: space-between;
+  font-size: 9px;
+  color: var(--text-3);
+  letter-spacing: 0.08em;
+  margin-bottom: 8px;
 }
-.client-chip {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 11px;
-  font-weight: 500;
-  letter-spacing: 0.05em;
-  padding: 8px 18px;
-  border-radius: 100px;
-  border: 1px solid;
-  opacity: 0.85;
-  transition: all 0.25s;
-  cursor: default;
+.t-progress-labels span.ok { color: var(--green); }
+.t-track {
+  height: 3px;
+  background: rgba(255,255,255,0.04);
+  border-radius: 2px;
+  overflow: hidden;
 }
-.client-chip:hover { opacity: 1; transform: translateY(-2px); }
+.t-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #0e7490, var(--cyan));
+  border-radius: 2px;
+  width: 0%;
+  animation: trackFill 3s ease 1.8s forwards;
+}
+@keyframes trackFill {
+  0%  { width: 0%; }
+  70% { width: 85%; }
+  100%{ width: 100%; }
+}
+@keyframes reveal {
+  from { opacity:0; transform: translateX(-6px); }
+  to   { opacity:1; transform: translateX(0); }
+}
 
-/* ── DOWNLOAD ── */
-.download-box {
-  background: linear-gradient(135deg, rgba(129,140,248,0.06) 0%, rgba(232,121,249,0.04) 100%);
-  border: 1px solid var(--border-bright);
-  border-radius: 16px;
-  padding: 72px 48px;
+/* ── SECTION BASE ── */
+.section {
+  position: relative;
+  z-index: 2;
+  padding: 100px 0;
+}
+.section-eyebrow {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--cyan);
+  margin-bottom: 14px;
+}
+.section-title {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: clamp(32px, 4vw, 50px);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: -0.01em;
+  line-height: 1.05;
+  margin-bottom: 14px;
+}
+.section-body {
+  font-size: 15px;
+  color: var(--text-2);
+  line-height: 1.75;
+  max-width: 480px;
+}
+
+/* ── RULE ── */
+.rule {
+  position: relative;
+  z-index: 2;
+  height: 1px;
+  background: var(--border);
+}
+
+/* ── STATS STRIP ── */
+.stats-strip {
+  position: relative;
+  z-index: 2;
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  padding: 48px 0;
+}
+.stats-inner {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1px;
+  background: var(--border);
+}
+.stat-cell {
+  background: var(--bg);
+  padding: 32px 36px;
   text-align: center;
+}
+.stat-num {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 48px;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--cyan);
+  margin-bottom: 6px;
+  letter-spacing: -0.02em;
+}
+.stat-label {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-3);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+/* ── FEATURES ── */
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1px;
+  background: var(--border);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+  margin-top: 64px;
+}
+.feature-card {
+  background: var(--bg);
+  padding: 36px 32px;
+  transition: background 0.25s;
   position: relative;
   overflow: hidden;
 }
-.download-box::before {
+.feature-card::after {
   content: '';
   position: absolute;
-  inset: 0;
-  background: radial-gradient(ellipse at 50% 0%, rgba(167,139,250,0.1), transparent 60%);
-  pointer-events: none;
+  top: 0; left: 0; right: 0;
+  height: 1px;
+  background: var(--cyan);
+  transform: scaleX(0);
+  transition: transform 0.3s;
+  transform-origin: left;
 }
-.dl-title {
-  font-family: 'Orbitron', monospace;
-  font-size: clamp(28px, 4vw, 48px);
-  font-weight: 900;
-  letter-spacing: -0.02em;
+.feature-card:hover { background: var(--bg1); }
+.feature-card:hover::after { transform: scaleX(1); }
+.feat-tag {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-3);
+  margin-bottom: 20px;
+}
+.feat-icon {
+  font-size: 22px;
   margin-bottom: 16px;
-  background: linear-gradient(135deg, var(--text), var(--a2));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  display: block;
 }
-.dl-sub {
-  font-size: 15px;
-  color: var(--text-dim);
-  margin-bottom: 40px;
-  line-height: 1.6;
+.feat-name {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 20px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text);
+  margin-bottom: 10px;
 }
-.dl-meta {
+.feat-desc {
+  font-size: 13.5px;
+  color: var(--text-2);
+  line-height: 1.7;
+}
+
+/* ── HOW IT WORKS ── */
+.how-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 80px;
+  align-items: start;
+  margin-top: 72px;
+}
+.steps { display: flex; flex-direction: column; }
+.step {
   display: flex;
-  justify-content: center;
-  gap: 40px;
-  margin-top: 36px;
+  gap: 20px;
+  padding: 24px 0;
+  border-top: 1px solid var(--border);
 }
-.dl-meta-item {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 11px;
-  color: var(--text-dim);
+.step:last-child { border-bottom: 1px solid var(--border); }
+.step-num {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--text-3);
+  letter-spacing: 0.08em;
+  padding-top: 3px;
+  min-width: 28px;
+}
+.step-body {}
+.step-name {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 18px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text);
+  margin-bottom: 6px;
+}
+.step-desc {
+  font-size: 13.5px;
+  color: var(--text-2);
+  line-height: 1.7;
+}
+.code-panel {
+  background: var(--bg1);
+  border: 1px solid var(--border2);
+  border-radius: 10px;
+  overflow: hidden;
+  position: sticky;
+  top: 90px;
+}
+.code-panel-bar {
+  padding: 12px 18px;
+  background: var(--bg2);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.code-panel-bar span {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  color: var(--text-3);
   letter-spacing: 0.06em;
 }
-.dl-meta-item strong {
-  display: block;
-  font-size: 14px;
-  color: var(--text-mid);
-  margin-bottom: 2px;
+.code-panel-bar .file { color: var(--cyan); }
+.code-body {
+  padding: 24px;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 12px;
+  line-height: 2;
+}
+.cc { color: var(--text-3); font-style: italic; }
+.ck { color: #f472b6; }
+.cf { color: #60a5fa; }
+.cv { color: var(--cyan); }
+.cs { color: var(--green); }
+.cn { color: #fbbf24; }
+.ce { color: var(--red); }
+
+/* ── DETECTION DATABASE ── */
+.client-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 48px;
+}
+.client-tag {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
   font-weight: 500;
+  letter-spacing: 0.04em;
+  color: var(--text-2);
+  background: var(--bg1);
+  border: 1px solid var(--border2);
+  border-radius: 4px;
+  padding: 7px 14px;
+  transition: all 0.2s;
+  cursor: default;
+}
+.client-tag:hover {
+  background: var(--bg2);
+  border-color: rgba(34,211,238,0.25);
+  color: var(--cyan);
+}
+.client-tag.more {
+  color: var(--text-3);
+  border-style: dashed;
+}
+.detect-header {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 80px;
+  align-items: end;
+  margin-bottom: 0;
+}
+.detect-note {
+  font-size: 13.5px;
+  color: var(--text-2);
+  line-height: 1.75;
+  align-self: end;
 }
 
-/* Download button pulse ring */
-.btn-dl-wrap {
-  display: inline-block;
+/* ── DOWNLOAD ── */
+.download-section {
   position: relative;
+  z-index: 2;
+  padding: 100px 0;
 }
-.btn-dl-wrap::after {
-  content: '';
-  position: absolute;
-  inset: -6px;
-  border-radius: 14px;
-  border: 1px solid rgba(167,139,250,0.4);
-  animation: ringPulse 2s ease infinite;
-  pointer-events: none;
+.download-box {
+  border: 1px solid var(--border2);
+  border-radius: 12px;
+  overflow: hidden;
+  background: var(--bg1);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
 }
-@keyframes ringPulse {
-  0%, 100% { opacity: 0.5; transform: scale(1); }
-  50% { opacity: 0; transform: scale(1.06); }
+.dl-left {
+  padding: 64px 56px;
+  border-right: 1px solid var(--border);
 }
+.dl-title {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: clamp(36px, 4vw, 52px);
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: -0.01em;
+  line-height: 1;
+  margin-bottom: 16px;
+}
+.dl-title span { color: var(--cyan); }
+.dl-sub {
+  font-size: 14px;
+  color: var(--text-2);
+  line-height: 1.75;
+  margin-bottom: 36px;
+  max-width: 320px;
+}
+.dl-right {
+  padding: 48px 48px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0;
+  background: var(--bg2);
+}
+.dl-spec {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 0;
+  border-bottom: 1px solid var(--border);
+}
+.dl-spec:first-child { border-top: 1px solid var(--border); }
+.dl-spec-label {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-3);
+}
+.dl-spec-value {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-2);
+}
+.dl-spec-value.good { color: var(--green); }
 
+/* ── FOOTER ── */
 footer {
   position: relative;
   z-index: 2;
   border-top: 1px solid var(--border);
-  padding: 36px 0;
+  padding: 32px 0;
 }
-footer .inner {
+.footer-inner {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 0 40px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  max-width: 1100px;
-  margin: 0 auto;
-  padding: 0 32px;
 }
 .footer-logo {
-  font-family: 'Orbitron', monospace;
-  font-size: 12px;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 14px;
   font-weight: 700;
-  letter-spacing: 0.12em;
-  color: var(--text-dim);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-3);
 }
 .footer-credit {
-  font-family: 'JetBrains Mono', monospace;
+  font-family: 'IBM Plex Mono', monospace;
   font-size: 11px;
-  color: var(--text-dim);
-  letter-spacing: 0.04em;
+  color: var(--text-3);
 }
-.footer-credit span { color: var(--a2); }
+.footer-credit span { color: var(--cyan); }
 
-.grad-rule {
-  height: 1px;
-  background: linear-gradient(90deg, transparent, var(--a3), var(--a2), var(--hot), var(--a2), transparent);
-  opacity: 0.4;
+/* ── ANIMATIONS ── */
+@keyframes fadeUp {
+  from { opacity:0; transform:translateY(16px); }
+  to   { opacity:1; transform:translateY(0); }
 }
-
-@media (max-width: 768px) {
-  .features-grid { grid-template-columns: 1fr; }
-  .how-grid { grid-template-columns: 1fr; }
-  .nav-links { display: none; }
-  .dl-meta { flex-direction: column; gap: 16px; }
-  .hero-cta { flex-direction: column; align-items: center; }
-}
-
 .reveal {
   opacity: 0;
-  transform: translateY(24px);
-  transition: opacity 0.7s ease, transform 0.7s ease;
+  transform: translateY(20px);
+  transition: opacity 0.65s ease, transform 0.65s ease;
 }
-.reveal.visible { opacity: 1; transform: translateY(0); }
-.reveal-delay-1 { transition-delay: 0.1s; }
-.reveal-delay-2 { transition-delay: 0.2s; }
-.reveal-delay-3 { transition-delay: 0.3s; }
+.reveal.vis { opacity:1; transform:translateY(0); }
+.d1 { transition-delay: 0.08s; }
+.d2 { transition-delay: 0.16s; }
+.d3 { transition-delay: 0.24s; }
+
+@media (max-width: 900px) {
+  .hero-inner { grid-template-columns: 1fr; gap: 48px; }
+  .hero-right { display: none; }
+  .features-grid { grid-template-columns: 1fr 1fr; }
+  .how-grid { grid-template-columns: 1fr; }
+  .code-panel { position: relative; top: 0; }
+  .detect-header { grid-template-columns: 1fr; gap: 24px; }
+  .download-box { grid-template-columns: 1fr; }
+  .dl-left { border-right: none; border-bottom: 1px solid var(--border); padding: 48px 36px; }
+  .stats-inner { grid-template-columns: repeat(2, 1fr); }
+  .nav-links { display: none; }
+}
+@media (max-width: 560px) {
+  .features-grid { grid-template-columns: 1fr; }
+  .stats-inner { grid-template-columns: 1fr 1fr; }
+  .container { padding: 0 20px; }
+}
 </style>
 </head>
 <body>
 
-<canvas id="bg-canvas"></canvas>
-
 <!-- NAV -->
 <nav>
-  <div class="inner">
-    <div class="nav-logo">
-      <svg class="gem-icon" viewBox="0 0 26 26" fill="none">
-        <polygon points="13,2 23,8 23,18 13,24 3,18 3,8" fill="url(#gf)" opacity="0.9"/>
-        <polygon points="13,2 23,8 13,10" fill="rgba(96,165,250,0.7)"/>
-        <polygon points="13,2 3,8 13,10" fill="rgba(232,121,249,0.7)"/>
-        <polygon points="13,10 23,8 23,18 13,24" fill="rgba(167,139,250,0.5)"/>
-        <polygon points="13,10 3,8 3,18 13,24" fill="rgba(129,140,248,0.5)"/>
-        <circle cx="13" cy="10" r="2" fill="white" opacity="0.9"/>
-        <defs>
-          <linearGradient id="gf" x1="3" y1="2" x2="23" y2="24" gradientUnits="userSpaceOnUse">
-            <stop stop-color="#818cf8"/>
-            <stop offset="0.5" stop-color="#a78bfa"/>
-            <stop offset="1" stop-color="#e879f9"/>
-          </linearGradient>
-        </defs>
+  <div class="nav-inner">
+    <a href="#" class="nav-logo">
+      <svg class="logo-gem" viewBox="0 0 22 22" fill="none">
+        <polygon points="11,2 20,7 20,15 11,20 2,15 2,7" fill="rgba(34,211,238,0.12)" stroke="rgba(34,211,238,0.5)" stroke-width="1"/>
+        <polygon points="11,2 20,7 11,9" fill="rgba(34,211,238,0.4)"/>
+        <polygon points="11,2 2,7 11,9" fill="rgba(34,211,238,0.2)"/>
+        <circle cx="11" cy="9" r="1.5" fill="#22d3ee"/>
       </svg>
-      CRYSTAL SCANNER
-    </div>
+      Crystal Scanner
+    </a>
     <ul class="nav-links">
       <li><a href="#features">Features</a></li>
       <li><a href="#how">How It Works</a></li>
       <li><a href="#detection">Detection</a></li>
-      <li><a href="CrystalScanner.exe" download="CrystalScanner.exe" class="btn-nav">Download</a></li>
+      <li><a href="CrystalScanner.exe" download class="nav-cta">Download</a></li>
     </ul>
   </div>
 </nav>
@@ -711,78 +769,76 @@ footer .inner {
 <!-- HERO -->
 <section class="hero">
   <div class="container">
-    <div class="hero-content">
-      <div class="hero-tag">
-        <span class="dot"></span>
-        Memory-Based Detection Engine
-      </div>
-      <h1 class="hero-title">
-        <span>CRYSTAL</span>
-        <div class="line2">SCANNER</div>
-      </h1>
-      <p class="hero-desc">
-        The most precise Minecraft cheat client detection tool. 
-        Scans process memory in real-time to identify active hack clients 
-        before they corrupt your gameplay.
-      </p>
-      <div class="hero-cta">
-        <a href="CrystalScanner.exe" download="CrystalScanner.exe" class="btn-primary">
-          ◆ &nbsp;Download Free
-        </a>
-        <a href="#how" class="btn-secondary">
-          Learn How It Works →
-        </a>
-      </div>
-    </div>
-
-    <!-- SCAN WINDOW MOCKUP -->
-    <div class="hero-visual">
-      <div class="scan-window">
-        <div class="window-bar">
-          <div class="window-dots">
-            <div class="dot-r"></div>
-            <div class="dot-y"></div>
-            <div class="dot-g"></div>
-          </div>
-          <div class="window-title">Crystal Scanner v2.0 — Premium Edition</div>
+    <div class="hero-inner">
+      <div class="hero-left">
+        <div class="hero-badge">
+          <span class="badge-dot"></span>
+          Memory-based detection engine
         </div>
-        <div class="window-body" style="position:relative; overflow:hidden;">
-          <div class="scan-beam"></div>
-          <div class="log-line" style="animation-delay:0.5s">
-            <span class="log-ts">[14:23:01]</span>
-            <span class="log-info">Initialising memory scan engine…</span>
-          </div>
-          <div class="log-line" style="animation-delay:1.0s">
-            <span class="log-ts">[14:23:01]</span>
-            <span class="log-info">Located Minecraft process — PID: 18842</span>
-          </div>
-          <div class="log-line" style="animation-delay:1.5s">
-            <span class="log-ts">[14:23:02]</span>
-            <span class="log-info">Enumerating committed memory regions…</span>
-          </div>
-          <div class="log-line" style="animation-delay:2.1s">
-            <span class="log-ts">[14:23:04]</span>
-            <span class="log-warn">Scanning 847 memory regions</span>
-          </div>
-          <div class="log-line" style="animation-delay:3.0s">
-            <span class="log-ts">[14:23:08]</span>
-            <span class="log-detect">⚠  Detected: LiquidBounce  (Hack Client)</span>
-          </div>
-          <div class="log-line" style="animation-delay:3.6s">
-            <span class="log-ts">[14:23:09]</span>
-            <span class="log-detect">⚠  Detected: Meteor Client  (Hack Client)</span>
-          </div>
-          <div class="log-line" style="animation-delay:4.2s">
-            <span class="log-ts">[14:23:11]</span>
-            <span class="log-detect">⚠  2 cheat client(s) detected!</span>
-          </div>
-          <div class="progress-wrap">
-            <div class="pb-label">
-              <span>SCANNING MEMORY</span>
-              <span class="log-ok">COMPLETE</span>
+        <h1 class="hero-title">
+          <span class="accent">Crystal</span>
+          Scanner
+          <span class="dim">Cheat detection</span>
+        </h1>
+        <p class="hero-desc">
+          The most precise Minecraft anti-cheat scanner. Reads directly from process memory in real-time to identify active hack clients before they corrupt your game.
+        </p>
+        <div class="hero-actions">
+          <a href="CrystalScanner.exe" download class="btn-primary">
+            ↓ &nbsp;Download Free
+          </a>
+          <a href="#how" class="btn-ghost">
+            How it works →
+          </a>
+        </div>
+      </div>
+      <div class="hero-right">
+        <div class="terminal">
+          <div class="terminal-bar">
+            <div class="tbar-dots">
+              <div class="td td-r"></div>
+              <div class="td td-y"></div>
+              <div class="td td-g"></div>
             </div>
-            <div class="pb-track">
-              <div class="pb-fill"></div>
+            <div class="tbar-label">crystal_scanner_v2.0 — scan output</div>
+          </div>
+          <div class="terminal-body">
+            <div class="t-scan-beam"></div>
+            <div class="tl" style="animation-delay:.4s">
+              <span class="tl-ts">14:23:01</span>
+              <span class="tl-i">Initialising memory scan engine…</span>
+            </div>
+            <div class="tl" style="animation-delay:.9s">
+              <span class="tl-ts">14:23:01</span>
+              <span class="tl-i">Minecraft process located — PID&nbsp;18842</span>
+            </div>
+            <div class="tl" style="animation-delay:1.4s">
+              <span class="tl-ts">14:23:02</span>
+              <span class="tl-i">Enumerating committed memory regions…</span>
+            </div>
+            <div class="tl" style="animation-delay:2.0s">
+              <span class="tl-ts">14:23:04</span>
+              <span class="tl-w">Scanning 847 memory regions</span>
+            </div>
+            <div class="tl" style="animation-delay:3.0s">
+              <span class="tl-ts">14:23:08</span>
+              <span class="tl-e">⚠  LiquidBounce detected</span>
+            </div>
+            <div class="tl" style="animation-delay:3.6s">
+              <span class="tl-ts">14:23:09</span>
+              <span class="tl-e">⚠  Meteor Client detected</span>
+            </div>
+            <div class="tl" style="animation-delay:4.2s">
+              <span class="tl-ts">14:23:11</span>
+              <span class="tl-ok">✓ Scan complete — 2 client(s) flagged</span>
+            </div>
+            <div class="t-divider"></div>
+            <div class="t-progress">
+              <div class="t-progress-labels">
+                <span>Scan progress</span>
+                <span class="ok">Complete</span>
+              </div>
+              <div class="t-track"><div class="t-fill"></div></div>
             </div>
           </div>
         </div>
@@ -791,183 +847,228 @@ footer .inner {
   </div>
 </section>
 
-<div class="grad-rule"></div>
+<!-- STATS STRIP -->
+<div class="stats-strip">
+  <div class="container">
+    <div class="stats-inner">
+      <div class="stat-cell reveal">
+        <div class="stat-num">20+</div>
+        <div class="stat-label">Clients Detected</div>
+      </div>
+      <div class="stat-cell reveal d1">
+        <div class="stat-num">5</div>
+        <div class="stat-label">Scan Vectors</div>
+      </div>
+      <div class="stat-cell reveal d2">
+        <div class="stat-num">v2.0</div>
+        <div class="stat-label">Latest Version</div>
+      </div>
+      <div class="stat-cell reveal d3">
+        <div class="stat-num">Free</div>
+        <div class="stat-label">Always</div>
+      </div>
+    </div>
+  </div>
+</div>
 
 <!-- FEATURES -->
 <section class="section" id="features">
   <div class="container">
     <div class="reveal">
-      <div class="section-tag">// Core Features</div>
-      <h2 class="section-title">Detection at the<br><span style="color:var(--a2)">Memory Level</span></h2>
-      <p class="section-sub">Crystal Scanner reads directly from process memory — where cheat clients can't hide. No guesswork, no false positives.</p>
+      <div class="section-eyebrow">// Core Features</div>
+      <h2 class="section-title">Detection at<br>the memory level</h2>
+      <p class="section-body">Crystal Scanner reads directly from process memory — where cheat clients can't hide. No guesswork, no false positives.</p>
     </div>
     <div class="features-grid">
-      <div class="feature-card reveal reveal-delay-1">
-        <div class="feature-icon">🔬</div>
-        <div class="feature-name">Deep Memory Scan</div>
-        <p class="feature-desc">Traverses every committed memory region of the Minecraft process, reading raw binary signatures that cheat clients leave behind.</p>
+      <div class="feature-card reveal d1">
+        <div class="feat-tag">01 — Primary</div>
+        <span class="feat-icon">⬡</span>
+        <div class="feat-name">Deep Memory Scan</div>
+        <p class="feat-desc">Traverses every committed memory region of the Minecraft process, reading raw binary signatures that cheat clients leave behind.</p>
       </div>
-      <div class="feature-card reveal reveal-delay-2">
-        <div class="feature-icon">⚡</div>
-        <div class="feature-name">Real-Time Detection</div>
-        <p class="feature-desc">Scans run concurrently with Minecraft. Results arrive live as regions are processed — no waiting for a full scan to complete.</p>
+      <div class="feature-card reveal d2">
+        <div class="feat-tag">02 — Primary</div>
+        <span class="feat-icon">◈</span>
+        <div class="feat-name">Real-Time Detection</div>
+        <p class="feat-desc">Scans run concurrently with Minecraft. Results arrive live as regions are processed — no waiting for a full scan to complete.</p>
       </div>
-      <div class="feature-card reveal reveal-delay-3">
-        <div class="feature-icon">🛡️</div>
-        <div class="feature-name">Signature Database</div>
-        <p class="feature-desc">Maintains an up-to-date library of binary signatures across the most popular Minecraft cheat clients, closet cheats, and utility mods.</p>
+      <div class="feature-card reveal d3">
+        <div class="feat-tag">03 — Primary</div>
+        <span class="feat-icon">◇</span>
+        <div class="feat-name">Signature Database</div>
+        <p class="feat-desc">Maintains an up-to-date library of binary signatures across the most popular Minecraft cheat clients, closet cheats, and utility mods.</p>
       </div>
-      <div class="feature-card reveal reveal-delay-1">
-        <div class="feature-icon">🔍</div>
-        <div class="feature-name">Process Enumeration</div>
-        <p class="feature-desc">Automatically discovers running Minecraft JVM processes — javaw.exe, java.exe, minecraft.exe — no manual PID entry needed.</p>
+      <div class="feature-card reveal d1">
+        <div class="feat-tag">04 — Secondary</div>
+        <span class="feat-icon">○</span>
+        <div class="feat-name">Process Enumeration</div>
+        <p class="feat-desc">Automatically discovers running Minecraft JVM processes — javaw.exe, java.exe, minecraft.exe — no manual PID entry needed.</p>
       </div>
-      <div class="feature-card reveal reveal-delay-2">
-        <div class="feature-icon">📊</div>
-        <div class="feature-name">Detailed Results</div>
-        <p class="feature-desc">Shows the exact client name and threat type for each detection. Colour-coded output distinguishes between hack clients and closet cheats.</p>
+      <div class="feature-card reveal d2">
+        <div class="feat-tag">05 — Secondary</div>
+        <span class="feat-icon">△</span>
+        <div class="feat-name">Detailed Results</div>
+        <p class="feat-desc">Shows the exact client name and threat type for each detection. Output distinguishes between hack clients and closet cheats.</p>
       </div>
-      <div class="feature-card reveal reveal-delay-3">
-        <div class="feature-icon">✨</div>
-        <div class="feature-name">Premium Interface</div>
-        <p class="feature-desc">GPU-accelerated animated UI with live progress tracking, particle effects, and a crisp dark theme. Works on any Windows system.</p>
+      <div class="feature-card reveal d3">
+        <div class="feat-tag">06 — Secondary</div>
+        <span class="feat-icon">□</span>
+        <div class="feat-name">Discord Reporting</div>
+        <p class="feat-desc">Scan results are automatically dispatched to a configurable Discord webhook — clean embeds with client names, sources, and confidence scores.</p>
       </div>
     </div>
   </div>
 </section>
 
-<div class="grad-rule"></div>
+<div class="rule"></div>
 
 <!-- HOW IT WORKS -->
 <section class="section" id="how">
   <div class="container">
     <div class="how-grid">
       <div class="reveal">
-        <div class="section-tag">// How It Works</div>
-        <h2 class="section-title">Under the Hood</h2>
-        <p class="section-sub">A precise, multi-stage pipeline from process discovery to detection result.</p>
-        <div class="steps" style="margin-top:40px">
+        <div class="section-eyebrow">// How It Works</div>
+        <h2 class="section-title">Under<br>the hood</h2>
+        <p class="section-body" style="margin-bottom:40px;">A precise, multi-stage pipeline from process discovery to detection result.</p>
+        <div class="steps">
           <div class="step">
-            <div class="step-num">1</div>
-            <div class="step-info">
-              <h3>Process Discovery</h3>
-              <p>Automatically locates all active Minecraft JVM processes on your system using system process enumeration.</p>
+            <div class="step-num">01</div>
+            <div class="step-body">
+              <div class="step-name">Process Discovery</div>
+              <p class="step-desc">Locates all active Minecraft JVM processes via system enumeration. No manual PID configuration required.</p>
             </div>
           </div>
           <div class="step">
-            <div class="step-num">2</div>
-            <div class="step-info">
-              <h3>Memory Access</h3>
-              <p>Opens the process with read permissions via the Windows API, enumerating all committed, accessible memory regions.</p>
+            <div class="step-num">02</div>
+            <div class="step-body">
+              <div class="step-name">Memory Access</div>
+              <p class="step-desc">Opens the process with read permissions via the Windows API, enumerating all committed, accessible memory regions.</p>
             </div>
           </div>
           <div class="step">
-            <div class="step-num">3</div>
-            <div class="step-info">
-              <h3>Signature Matching</h3>
-              <p>Each 1 MB chunk is scanned against the full signature database. Matches are flagged instantly as they're found.</p>
+            <div class="step-num">03</div>
+            <div class="step-body">
+              <div class="step-name">Signature Matching</div>
+              <p class="step-desc">Each 1 MB chunk is scanned against the full signature database. Matches are flagged instantly across MEM, JVM, DLL, JAR, and NET vectors.</p>
             </div>
           </div>
           <div class="step">
-            <div class="step-num">4</div>
-            <div class="step-info">
-              <h3>Result Report</h3>
-              <p>Clean, colour-coded output shows every detected client, its threat category, and a timestamp — ready to screenshot and share.</p>
+            <div class="step-num">04</div>
+            <div class="step-body">
+              <div class="step-name">Result Dispatch</div>
+              <p class="step-desc">Clean output shows every detected client, its threat category, and a confidence score — sent to Discord and ready to share.</p>
             </div>
           </div>
         </div>
       </div>
-      <div class="reveal reveal-delay-2">
-        <div class="code-box" style="position:relative; overflow:hidden;">
-          <div class="scan-beam"></div>
-          <div class="c-dim">// opening process</div>
-          <div><span class="c-a3">OpenProcess</span><span class="c-dim">(</span></div>
-          <div>&nbsp;&nbsp;<span class="c-a2">PROCESS_VM_READ</span><span class="c-dim"> |</span></div>
-          <div>&nbsp;&nbsp;<span class="c-a2">PROCESS_QUERY_INFO</span></div>
-          <div><span class="c-dim">)</span> <span class="c-green">→ handle</span></div>
-          <br>
-          <div class="c-dim">// scan memory regions</div>
-          <div><span class="c-hot">for</span> region <span class="c-hot">in</span> <span class="c-a1">committed_regions</span><span class="c-dim">:</span></div>
-          <div>&nbsp;&nbsp;data <span class="c-dim">=</span> <span class="c-a3">ReadProcessMemory</span><span class="c-dim">(</span>region<span class="c-dim">)</span></div>
-          <div>&nbsp;&nbsp;<span class="c-hot">if</span> <span class="c-a1">signature</span> <span class="c-hot">in</span> data<span class="c-dim">:</span></div>
-          <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="c-red">⚠ flag_detection</span><span class="c-dim">(client)</span></div>
-          <br>
-          <div class="c-dim">// result</div>
-          <div><span class="c-green">✔ scan_complete</span><span class="c-dim">( </span><span class="c-a2">hits=2</span><span class="c-dim"> )</span></div>
+      <div class="reveal d2">
+        <div class="code-panel">
+          <div class="code-panel-bar">
+            <span class="file">scanner.py</span>
+            <span>scan_engine.run()</span>
+          </div>
+          <div class="code-body">
+            <div><span class="cc"># open process with read access</span></div>
+            <div><span class="cf">OpenProcess</span><span>(</span></div>
+            <div>&nbsp;&nbsp;<span class="cv">PROCESS_VM_READ</span></div>
+            <div>&nbsp;&nbsp;<span class="ck">|</span> <span class="cv">PROCESS_QUERY_INFO</span></div>
+            <div><span>)</span> <span class="ck">→</span> <span class="cs">handle</span></div>
+            <br>
+            <div><span class="cc"># enumerate committed regions</span></div>
+            <div><span class="ck">for</span> <span class="">region</span> <span class="ck">in</span> <span class="cf">committed_regions</span><span>:</span></div>
+            <div>&nbsp;&nbsp;data <span class="ck">=</span> <span class="cf">ReadProcessMemory</span><span>(region)</span></div>
+            <br>
+            <div><span class="cc"># scan against signature database</span></div>
+            <div>&nbsp;&nbsp;<span class="ck">if</span> <span class="cv">signature</span> <span class="ck">in</span> data<span>:</span></div>
+            <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="ce">flag_detection</span><span>(client)</span></div>
+            <br>
+            <div><span class="cc"># dispatch results</span></div>
+            <div><span class="cf">send_webhook</span><span>(result, elapsed)</span></div>
+            <br>
+            <div><span class="cs">✓ scan_complete</span><span>( hits=</span><span class="cn">2</span><span> )</span></div>
+          </div>
         </div>
       </div>
     </div>
   </div>
 </section>
 
-<div class="grad-rule"></div>
+<div class="rule"></div>
 
 <!-- DETECTION DATABASE -->
-<section class="section clients-section" id="detection">
+<section class="section" id="detection">
   <div class="container">
-    <div class="reveal">
-      <div class="section-tag">// Detection Database</div>
-      <h2 class="section-title">Clients We Detect</h2>
-      <p class="section-sub" style="margin:0 auto;">From widespread open-source hack clients to elusive closet cheats — our signature library covers the full spectrum of Minecraft cheating software.</p>
+    <div class="detect-header reveal">
+      <div>
+        <div class="section-eyebrow">// Detection Database</div>
+        <h2 class="section-title">Clients<br>we detect</h2>
+      </div>
+      <p class="detect-note">From widespread open-source hack clients to elusive closet cheats — our signature library covers the full spectrum of Minecraft cheating software, with regular updates as new clients emerge.</p>
     </div>
-    <div class="clients-grid reveal" style="margin-top:52px;">
-      <span class="client-chip" style="color:#60a5fa; border-color:rgba(96,165,250,0.3); background:rgba(96,165,250,0.05)">LiquidBounce</span>
-      <span class="client-chip" style="color:#38bdf8; border-color:rgba(56,189,248,0.3); background:rgba(56,189,248,0.05)">LiquidBounce Next</span>
-      <span class="client-chip" style="color:#c084fc; border-color:rgba(192,132,252,0.3); background:rgba(192,132,252,0.05)">Wurst</span>
-      <span class="client-chip" style="color:#e879f9; border-color:rgba(232,121,249,0.3); background:rgba(232,121,249,0.05)">Meteor Client</span>
-      <span class="client-chip" style="color:#a78bfa; border-color:rgba(167,139,250,0.3); background:rgba(167,139,250,0.05)">Doomsday</span>
-      <span class="client-chip" style="color:#818cf8; border-color:rgba(129,140,248,0.3); background:rgba(129,140,248,0.05)">Nova Client</span>
-      <span class="client-chip" style="color:#f472b6; border-color:rgba(244,114,182,0.3); background:rgba(244,114,182,0.05)">Vape</span>
-      <span class="client-chip" style="color:#a78bfa; border-color:rgba(167,139,250,0.3); background:rgba(167,139,250,0.05)">Ghost</span>
-      <span class="client-chip" style="color:#818cf8; border-color:rgba(129,140,248,0.3); background:rgba(129,140,248,0.05)">Hyperium</span>
-      <span class="client-chip" style="color:#a78bfa; border-color:rgba(167,139,250,0.3); background:rgba(167,139,250,0.05)">BleachHack</span>
-      <span class="client-chip" style="color:#60a5fa; border-color:rgba(96,165,250,0.3); background:rgba(96,165,250,0.05)">Kami Blue</span>
-      <span class="client-chip" style="color:#c084fc; border-color:rgba(192,132,252,0.3); background:rgba(192,132,252,0.05)">Aristois</span>
-      <span class="client-chip" style="color:#818cf8; border-color:rgba(129,140,248,0.3); background:rgba(129,140,248,0.05)">Sigma</span>
-      <span class="client-chip" style="color:#a78bfa; border-color:rgba(167,139,250,0.3); background:rgba(167,139,250,0.05)">Wolfram</span>
-      <span class="client-chip" style="color:#c084fc; border-color:rgba(192,132,252,0.3); background:rgba(192,132,252,0.05)">Flux</span>
-      <span class="client-chip" style="color:#60a5fa; border-color:rgba(96,165,250,0.3); background:rgba(96,165,250,0.05)">Impact</span>
-      <span class="client-chip" style="color:#818cf8; border-color:rgba(129,140,248,0.3); background:rgba(129,140,248,0.05)">Inertia</span>
-      <span class="client-chip" style="color:#60a5fa; border-color:rgba(96,165,250,0.3); background:rgba(96,165,250,0.05)">Drip</span>
-      <span class="client-chip" style="color:#818cf8; border-color:rgba(129,140,248,0.3); background:rgba(129,140,248,0.05)">Rise Client</span>
-      <span class="client-chip" style="color:#fbbf24; border-color:rgba(251,191,36,0.3); background:rgba(251,191,36,0.05)">Huzuni</span>
-      <span class="client-chip" style="color:#4a4580; border-color:rgba(74,69,128,0.4); background:rgba(74,69,128,0.05); font-style:italic">+ More Clients…</span>
+    <div class="client-grid reveal">
+      <span class="client-tag">LiquidBounce</span>
+      <span class="client-tag">LiquidBounce Next</span>
+      <span class="client-tag">Meteor Client</span>
+      <span class="client-tag">Wurst</span>
+      <span class="client-tag">Aristois</span>
+      <span class="client-tag">Sigma</span>
+      <span class="client-tag">BleachHack</span>
+      <span class="client-tag">Rise Client</span>
+      <span class="client-tag">Wolfram</span>
+      <span class="client-tag">Nova Client</span>
+      <span class="client-tag">Doomsday</span>
+      <span class="client-tag">Vape</span>
+      <span class="client-tag">Reflex</span>
+      <span class="client-tag">Ghost</span>
+      <span class="client-tag">Kami Blue</span>
+      <span class="client-tag">Hyperium</span>
+      <span class="client-tag">Impact</span>
+      <span class="client-tag">Inertia</span>
+      <span class="client-tag">Huzuni</span>
+      <span class="client-tag">Flux</span>
+      <span class="client-tag more">+ More…</span>
     </div>
   </div>
 </section>
 
-<div class="grad-rule"></div>
+<div class="rule"></div>
 
 <!-- DOWNLOAD -->
-<section class="section" id="download">
+<section class="download-section" id="download">
   <div class="container">
     <div class="download-box reveal">
-      <div class="section-tag" style="margin-bottom:20px">// Free Download</div>
-      <div class="dl-title">Start Scanning Now</div>
-      <p class="dl-sub">Crystal Scanner is completely free. Windows only.<br>Run as Administrator for full memory access.</p>
-
-      <div class="btn-dl-wrap">
-        <a href="CrystalScanner.exe" download="CrystalScanner.exe" class="btn-primary" style="font-size:13px; padding:18px 40px;">
-          ◆ &nbsp;Download Crystal Scanner v2.0
+      <div class="dl-left">
+        <div class="section-eyebrow">// Free Download</div>
+        <h2 class="dl-title">Start<br>scanning<br><span>now</span></h2>
+        <p class="dl-sub">Crystal Scanner is completely free to use. Run as Administrator for full memory access.</p>
+        <a href="CrystalScanner.exe" download class="btn-primary" style="font-size:13px;">
+          ↓ &nbsp;Download Crystal Scanner v2.0
         </a>
       </div>
-
-      <div class="dl-meta">
-        <div class="dl-meta-item">
-          <strong>v2.0</strong>
-          LATEST VERSION
+      <div class="dl-right">
+        <div class="dl-spec">
+          <span class="dl-spec-label">Version</span>
+          <span class="dl-spec-value">v2.0 Latest</span>
         </div>
-        <div class="dl-meta-item">
-          <strong>Windows 10 / 11</strong>
-          PLATFORM
+        <div class="dl-spec">
+          <span class="dl-spec-label">Platform</span>
+          <span class="dl-spec-value">Windows 10 / 11</span>
         </div>
-        <div class="dl-meta-item">
-          <strong>Python + psutil</strong>
-          RUNTIME
+        <div class="dl-spec">
+          <span class="dl-spec-label">Runtime</span>
+          <span class="dl-spec-value">Python + psutil</span>
         </div>
-        <div class="dl-meta-item">
-          <strong>Administrator</strong>
-          REQUIRED
+        <div class="dl-spec">
+          <span class="dl-spec-label">Permissions</span>
+          <span class="dl-spec-value">Administrator</span>
+        </div>
+        <div class="dl-spec">
+          <span class="dl-spec-label">Price</span>
+          <span class="dl-spec-value good">Free</span>
+        </div>
+        <div class="dl-spec">
+          <span class="dl-spec-label">Made by</span>
+          <span class="dl-spec-value">Ily_Mildy</span>
         </div>
       </div>
     </div>
@@ -976,95 +1077,18 @@ footer .inner {
 
 <!-- FOOTER -->
 <footer>
-  <div class="inner">
-    <div class="footer-logo">◆ CRYSTAL SCANNER</div>
+  <div class="footer-inner">
+    <div class="footer-logo">◆ Crystal Scanner</div>
     <div class="footer-credit">Made by <span>Ily_Mildy</span></div>
   </div>
 </footer>
 
 <script>
-// ── BACKGROUND CANVAS ──
-const canvas = document.getElementById('bg-canvas');
-const ctx    = canvas.getContext('2d');
-
-let W, H, stars = [], tick = 0;
-const STAR_COLS = ['#818cf8','#a78bfa','#60a5fa','#c084fc','#e879f9','#93c5fd','#ddd6fe'];
-const ORBS = [
-  { fx: 0.15, fy: 0.28, sx: 0.08, sy: 0.06, spd: 0.65, r: 220, col: [55, 18, 130] },
-  { fx: 0.82, fy: 0.52, sx: 0.06, sy: 0.07, spd: 0.85, r: 190, col: [18, 38, 155] },
-  { fx: 0.50, fy: 0.15, sx: 0.05, sy: 0.06, spd: 1.05, r: 170, col: [95,  8,  95] },
-  { fx: 0.30, fy: 0.80, sx: 0.06, sy: 0.05, spd: 0.55, r: 150, col: [40, 15, 110] },
-];
-
-function resize() {
-  W = canvas.width  = window.innerWidth;
-  H = canvas.height = window.innerHeight;
-  stars = [];
-  for (let i = 0; i < 70; i++) spawnStar(true);
-}
-
-function spawnStar(init = false) {
-  return {
-    x:    Math.random() * W,
-    y:    init ? Math.random() * H : H + 6,
-    r:    Math.random() * 1.4 + 0.4,
-    vy:   -(Math.random() * 0.4 + 0.08),
-    vx:   (Math.random() - 0.5) * 0.15,
-    life: Math.random() * Math.PI * 2,
-    ls:   Math.random() * 0.025 + 0.01,
-    col:  STAR_COLS[Math.floor(Math.random() * STAR_COLS.length)],
-  };
-}
-
-function drawFrame() {
-  ctx.clearRect(0, 0, W, H);
-  const grd = ctx.createLinearGradient(0, 0, 0, H);
-  grd.addColorStop(0, '#04020f');
-  grd.addColorStop(0.5, '#070520');
-  grd.addColorStop(1, '#0c0733');
-  ctx.fillStyle = grd;
-  ctx.fillRect(0, 0, W, H);
-
-  const t = tick * 0.01;
-  ORBS.forEach(o => {
-    const cx = W * (o.fx + o.sx * Math.sin(t * o.spd));
-    const cy = H * (o.fy + o.sy * Math.cos(t * o.spd * 0.7));
-    const gr = ctx.createRadialGradient(cx, cy, 0, cx, cy, o.r);
-    gr.addColorStop(0,   `rgba(${o.col[0]},${o.col[1]},${o.col[2]},0.18)`);
-    gr.addColorStop(0.5, `rgba(${o.col[0]},${o.col[1]},${o.col[2]},0.07)`);
-    gr.addColorStop(1,   `rgba(${o.col[0]},${o.col[1]},${o.col[2]},0)`);
-    ctx.fillStyle = gr;
-    ctx.beginPath();
-    ctx.arc(cx, cy, o.r, 0, Math.PI * 2);
-    ctx.fill();
-  });
-
-  for (let i = stars.length - 1; i >= 0; i--) {
-    const s = stars[i];
-    const pulse = 0.5 + 0.5 * Math.sin(s.life);
-    ctx.fillStyle = s.col;
-    ctx.globalAlpha = pulse * 0.8;
-    ctx.beginPath();
-    ctx.arc(s.x, s.y, s.r * pulse, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.globalAlpha = 1;
-    s.x += s.vx; s.y += s.vy; s.life += s.ls;
-    if (s.y < -8 || s.x < -12 || s.x > W + 12) stars[i] = spawnStar();
-  }
-
-  tick++;
-  requestAnimationFrame(drawFrame);
-}
-
-window.addEventListener('resize', resize);
-resize();
-drawFrame();
-
-// ── SCROLL REVEAL ──
+// Scroll reveal
 const reveals = document.querySelectorAll('.reveal');
 const obs = new IntersectionObserver((entries) => {
-  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
-}, { threshold: 0.12 });
+  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('vis'); });
+}, { threshold: 0.1 });
 reveals.forEach(el => obs.observe(el));
 </script>
 </body>
